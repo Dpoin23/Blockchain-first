@@ -5,9 +5,9 @@ from time import time
 from uuid import uuid4
 from textwrap import dedent
 
-from flask import Flask
+from flask import Flask, jsonify
 
-class Blockchain:
+class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
@@ -58,3 +58,30 @@ class Blockchain:
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
+
+
+app = Flask(__name__)
+
+node_identifier = str(uuid4()).replace('-', '')
+
+blockchain = Blockchain()
+
+@app.route('/main', methods=['GET'])
+def mine():
+    return 'mine'
+
+@app.route('/transactions/new', methods=['POST'])
+def new_transactions():
+    return 'new_transactions'
+
+@app.route('/chain', methods=['GET'])
+def full_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
+    }
+    return jsonify(response), 200
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
