@@ -220,7 +220,8 @@ def route_errors(fn):
         try:
             return fn(*args, **kwargs)
         except ChainError as err:
-            return jsonify({"error": str(err)}), 400
+            log.warning("request failed: %s", err)
+            return jsonify({"error": "bad request"}), 400
 
     return wrapper
 
