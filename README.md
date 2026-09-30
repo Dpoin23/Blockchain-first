@@ -115,10 +115,16 @@ Reads are open on localhost. Mutations need `X-Chain-Request: 1`. When `CHAIN_AP
 ## Tests
 
 ```bash
+ruff check .
+python -m compileall -q .
 pytest
+python scripts/smoke.py
+python scripts/check_runnable.py
 ```
 
-The suite uses difficulty 1 so mining stays fast. The running node defaults to difficulty 4.
+The suite uses difficulty 1 so mining stays fast. The running node defaults to difficulty 4. `scripts/smoke.py` mines one block in-process. `scripts/check_runnable.py` builds the Flask app and requests `/health` without opening a port.
+
+GitHub Actions runs those commands on pushes and pull requests to `main`. Dependabot opens weekly update pull requests for pip and GitHub Actions. CodeQL analyzes the Python on the same events and every Sunday.
 
 ## Where a meme coin fits
 
