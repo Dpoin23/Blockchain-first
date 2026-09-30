@@ -1,4 +1,4 @@
-"""Run a node from the repository root: python blockchain.py"""
+"""Run a node with: python -m chain"""
 
 from chain.node import main
 
