@@ -109,9 +109,9 @@ def _canonical_host(host: str) -> str:
         return str(ipaddress.ip_address(host))
     except ValueError:
         if not _HOST_RE.fullmatch(host) or ".." in host or host.startswith("-"):
-            raise ChainError("invalid peer host")
+            raise ChainError("invalid peer host") from None
         if not re.search(r"[A-Za-z]", host):
-            raise ChainError("invalid peer host")
+            raise ChainError("invalid peer host") from None
         return host.lower().rstrip(".")
 
 

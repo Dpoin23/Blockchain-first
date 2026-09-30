@@ -130,7 +130,7 @@ class Blockchain:
                 "difficulty": self.difficulty,
             }
             mine_proof(block)
-            validate_chain(self.chain + [block], self.difficulty)
+            validate_chain([*self.chain, block], self.difficulty)
             self.chain.append(block)
             included = {(tx["sender"], tx["nonce"]) for tx in selected}
             self.mempool = [
