@@ -18,6 +18,13 @@ def test_loopback_and_private_origins_are_allowed():
     assert normalize_origin("http://localhost:5001") == "http://localhost:5001"
 
 
+def test_hyphen_runs_are_rejected_without_backtracking():
+    started = time.monotonic()
+    with pytest.raises(ChainError):
+        normalize_origin("http://" + ("-" * 180) + ":80")
+    assert time.monotonic() - started < 0.5
+
+
 def test_metadata_and_non_http_targets_are_rejected():
     rejected = [
         "http://169.254.169.254:80",

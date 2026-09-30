@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import ipaddress
 import json
-import re
 import socket
 import urllib.error
 import urllib.parse
@@ -21,7 +20,7 @@ from chain.errors import ChainError
 _MAX_URL_LENGTH = 200
 _MAX_RESPONSE_BYTES = 2_000_000
 _TIMEOUT_SECONDS = 3
-_HOST_RE = re.compile(r"(?=.{1,253}$)[A-Za-z0-9.-]+$")
+_MAX_HOST_LENGTH = 253
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -108,11 +107,28 @@ def _canonical_host(host: str) -> str:
     try:
         return str(ipaddress.ip_address(host))
     except ValueError:
-        if not _HOST_RE.fullmatch(host) or ".." in host or host.startswith("-"):
-            raise ChainError("invalid peer host") from None
-        if not re.search(r"[A-Za-z]", host):
+        if not _allowed_hostname(host):
             raise ChainError("invalid peer host") from None
         return host.lower().rstrip(".")
+
+
+def _allowed_hostname(host: str) -> bool:
+    """Same hostname shape as before, checked in one linear pass.
+
+    The old lookahead-plus-character-class regex backtracked on long hyphen
+    runs. Length, alphabet, and the required letter are decided here instead.
+    """
+    if not 1 <= len(host) <= _MAX_HOST_LENGTH or ".." in host or host.startswith("-"):
+        return False
+    has_letter = False
+    for char in host:
+        if char.isalpha():
+            has_letter = True
+        elif char.isdigit() or char in ".-":
+            continue
+        else:
+            return False
+    return has_letter
 
 
 def _resolve(host: str) -> list[ipaddress.IPv4Address | ipaddress.IPv6Address]:
